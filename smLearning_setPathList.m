@@ -8,7 +8,7 @@
 function [ data_dir, code_dir, path_list ] = smLearning_setPathList
 
 data_dir = 'C:\Users\Michael\Documents\Data & Analysis';
-code_dir = 'C:\Users\Michael\Documents\MATLAB\GitHub\Sensorimotor Learning';
+code_dir = 'C:\Users\Michael\Documents\MATLAB\GitHub\Sensorimotor-Learning';
 
 % add the paths needed for this code
 path_list = {...
