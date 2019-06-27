@@ -43,7 +43,7 @@ close(f);
 
 %% Plot behavioral data
 time_range = [-2 5];
-for i = 2:numel(expData)
+for i = 1:numel(expData)
     mat_dir = fullfile(dirs.analysis,expData(i).sub_dir);
     fig_dir = fullfile(mat_dir,'figs');
     create_dirs(fig_dir); %Create dir: 'figs'
