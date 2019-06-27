@@ -10,43 +10,40 @@ function fig = plot_behByTrial(trialData,trials,tlabel,time_range)
 %   time_range:   Time in seconds to plot, e.g., [-2 6], around the cue
 
     fig = figure;
-    title({tlabel;'{\color{red}L Licks} {\color{blue}R Licks} {\color[rgb]{1 0.8 0.8}Upsweep} {\color[rgb]{0.8 0.8 1}Downsweep} {\color[rgb]{0.5 1 1}Reward} '});
+    title({tlabel;'{\color{red}L Licks} {\color{blue}R Licks} {\color[rgb]{1 0.4 0.4}Upsweep} {\color[rgb]{0.4 0.4 1}Downsweep} {\color[rgb]{0.5 1 1}Reward} '});
+    redShade = [1 0 0];
+    blueShade = [0 0.4 1];
+    
     hold on;
     for j = 1:numel(trialData.cue)
-        t0 = trialData.cueTimes(j);
-        
+                
         %Shaded area for cue
+        t0 = trialData.cueTimes(j);
+        eventDur = trialData.outcomeTimes(j)-t0; %Cue offset = outcome onset
         if trials.upsweep(j)
-            color = 'r';
+            eventShade(j,0,eventDur,redShade); %eventShade(trial_idx,time,dur,color)
         elseif trials.downsweep(j)
-            color = 'b';
+            eventShade(j,0,eventDur,blueShade);
         end
-        eventTime = trialData.cueTimes(j);
-        eventDur = trialData.outcomeTimes(j)-trialData.cueTimes(j);
-        p = fill([eventTime-t0 eventTime+eventDur-t0...
-            eventTime+eventDur-t0 eventTime-t0],...
-            [j-0.5 j-0.5 j+0.5 j+0.5],color);
-        set(p,'Edgecolor','none','FaceAlpha',0.2);
         
         %Shaded area for outcome
+        eventTime = trialData.outcomeTimes(j)-t0;
         if trials.hit(j)
-            color = 'c';
-        else
-            color = 'w';
+            eventShade(j,eventTime,0.5,'c')
         end   
-        eventTime = trialData.outcomeTimes(j);
-        eventDur = 0.5;
-        p = fill([eventTime-t0 eventTime+eventDur-t0...
-            eventTime+eventDur-t0 eventTime-t0],...
-            [j-0.5 j-0.5 j+0.5 j+0.5],color);
-        set(p,'Edgecolor','none','FaceAlpha',0.2);
         
+        %Shaded area for grace period (cue-onset to 500 ms)
+        eventShade(j,0,0.5,'w');
+                
         %Plot tick marks for licks
-        LL = trialData.leftlickTimes{j}; RL = trialData.rightlickTimes{j};
-        plot([LL; LL],j+[-0.5*ones(size(LL)); 0.5*ones(size(LL))],'r','LineWidth',1);
-        plot([RL; RL],j+[-0.5*ones(size(RL)); 0.5*ones(size(RL))],'b','LineWidth',1);
+        win = @(X) X(X>time_range(1) & X<time_range(2));
+        LL = win(trialData.leftlickTimes{j}); 
+        RL = win(trialData.rightlickTimes{j});
+        
+        plot([LL; LL],j+[-0.5*ones(size(LL)); 0.5*ones(size(LL))],'r','LineWidth',0.5);
+        plot([RL; RL],j+[-0.5*ones(size(RL)); 0.5*ones(size(RL))],'b','LineWidth',0.5);
     end
-    
+       
     xlim([time_range(1),time_range(2)]);
     ylim([0 numel(trialData.cue)]);
     xlabel('Time from sound cue (s)');
@@ -54,4 +51,10 @@ function fig = plot_behByTrial(trialData,trials,tlabel,time_range)
     axis ij square;
 end
 
-
+function eventShade(trial_idx,time,dur,color)
+p = fill([time,time+dur,time+dur,time],...
+    [trial_idx-0.5,trial_idx-0.5,trial_idx+0.5,trial_idx+0.5],...
+    color);
+p.EdgeColor = 'none';
+p.FaceAlpha = 0.5;
+end
