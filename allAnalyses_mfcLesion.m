@@ -17,7 +17,7 @@ clearvars;
 % Assign data directories and get experiment-spec parameters 
 [dirs, expData] = expData_bySubject(fullfile(data_dir,'Sensorimotor Learning - MFC Lesion'));
 
-%% Analyze behavior and generate figs
+%% Analyze individual sessions
 f = waitbar(0);
 for i = 1:numel(expData)
     msg = ['Processing logfile ' num2str(i) '/' num2str(numel(expData)) '...'];
@@ -41,7 +41,7 @@ for i = 1:numel(expData)
 end
 close(f);
 
-%% Plot behavioral data
+% Figures
 time_range = [-2 5];
 for i = 1:numel(expData)
     mat_dir = fullfile(dirs.analysis,expData(i).sub_dir);
@@ -71,3 +71,12 @@ for i = 1:numel(expData)
     
     close all;
 end
+
+%% Summary Analyses
+% -Plot for each subject: hit rate, d-prime, lick stats as fcn of nSessions (try by nTrials performed as well)...
+% -Lick stats, eg pre-cue lick rate and pre/post cue lick rate...
+% -Stat related to alternation outside of reward period, eg P(nextlick_contra|lick_ipsi)??
+% -Consistency of reaction and response
+% -Reaction time and/or dispersion... look like RTs get more consistent over training.
+%
+% -Group stats after unblinding...

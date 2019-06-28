@@ -12,7 +12,7 @@ function fig = plot_behByTrial(trialData,trials,tlabel,time_range)
     fig = figure;
     title({tlabel;'{\color{red}L Licks} {\color{blue}R Licks} {\color[rgb]{1 0.4 0.4}Upsweep} {\color[rgb]{0.4 0.4 1}Downsweep} {\color[rgb]{0.5 1 1}Reward} '});
     redShade = [1 0 0];
-    blueShade = [0 0.4 1];
+    blueShade = [0 0.3 1];
     
     hold on;
     for j = 1:numel(trialData.cue)
