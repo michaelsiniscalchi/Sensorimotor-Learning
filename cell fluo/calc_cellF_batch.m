@@ -5,13 +5,14 @@
 %       2.) An n-pixel width boundary is excluded at the edge of each frame.
 %
 %AUTHOR: MJ Siniscalchi, 190222
+%           -190619mjs Edited to accommodate trial-by-trial movement corrected data...   
 %
 %INPUT ARGS:    struct 'cells', containing these fields: 
 %                   'roimask', a cell array of logical masks, 
 %                       each indexing a ROI within the field of view.
 %                   'subtractmask', same for the neuropil masks.
 %               double 'stack' OR
-%               cell   'stack', containing full path to each stack as TIFF.
+%               cell   'stack', containing full path to each stack as .MAT
 %               double 'borderWidth'
 %
 %OUTPUTS:       

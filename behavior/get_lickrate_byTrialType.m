@@ -27,24 +27,24 @@ for i=1:numel(trialType)
     tempMask=trialMask & trials.upsweep;
 
     %histogram of all left lick times = left lick rate
-    temp=histc([trialData.leftlickTimes{tempMask}],edges)/sum(tempMask)/edgeWidth;   %in Hz
+    temp=histc([trialData.lickTimesLeft{tempMask}],edges)/sum(tempMask)/edgeWidth;   %in Hz
     if ~isempty(temp)    %if there are any such trials and licks
         up_leftTimes{i}=temp(1:end-1)';
     else                 %otherwise fill with NaN
         up_leftTimes{i}=nan(size(edges(1:end-1)'));
     end
     %number of licks on the correct side in each qualified trial
-    up_leftNumLickL{i} = trialData.numLeftLick(tempMask);
+    up_leftNumLickL{i} = trialData.nLicksLeft(tempMask);
     
     %histogram of all right lick times = right lick rate    
-    temp=histc([trialData.rightlickTimes{tempMask}],edges)/sum(tempMask)/edgeWidth;   %in Hz
+    temp=histc([trialData.lickTimesRight{tempMask}],edges)/sum(tempMask)/edgeWidth;   %in Hz
     if ~isempty(temp)    
         up_rightTimes{i}=temp(1:end-1)';
     else
         up_rightTimes{i}=nan(size(edges(1:end-1)'));
     end
     %number of licks on specified side in each qualified trial
-    up_rightNumLickR{i} = trialData.numRightLick(tempMask);
+    up_rightNumLickR{i} = trialData.nLicksRight(tempMask);
     
     %reward times
     up_rewardTimes{i}=trialData.outcomeTimes(tempMask) - trialData.cueTimes(tempMask);
@@ -53,24 +53,24 @@ for i=1:numel(trialType)
     tempMask=trialMask & trials.downsweep;
 
     %histogram of all left lick times = left lick rate    
-    temp=histc([trialData.leftlickTimes{tempMask}],edges)/sum(tempMask)/edgeWidth;   %in Hz
+    temp=histc([trialData.lickTimesLeft{tempMask}],edges)/sum(tempMask)/edgeWidth;   %in Hz
     if ~isempty(temp)    %if there are any such trials and licks
         down_leftTimes{i}=temp(1:end-1)';
     else                 %otherwise fill with NaN
         down_leftTimes{i}=nan(size(edges(1:end-1)'));
     end
     %number of licks in each qualified trial
-    down_leftNumLickL{i} = trialData.numLeftLick(tempMask);
+    down_leftNumLickL{i} = trialData.nLicksLeft(tempMask);
     
     %histogram of all right lick times = right lick rate        
-    temp=histc([trialData.rightlickTimes{tempMask}],edges)/sum(tempMask)/edgeWidth;   %in Hz
+    temp=histc([trialData.lickTimesRight{tempMask}],edges)/sum(tempMask)/edgeWidth;   %in Hz
     if ~isempty(temp)
         down_rightTimes{i}=temp(1:end-1)';
     else
         down_rightTimes{i}=nan(size(edges(1:end-1)'));
     end
     %number of licks in each qualified trial
-    down_rightNumLickR{i} = trialData.numRightLick(tempMask);
+    down_rightNumLickR{i} = trialData.nLicksRight(tempMask);
     
     %reward times
     down_rewardTimes{i}=trialData.outcomeTimes(tempMask) - trialData.cueTimes(tempMask);

@@ -9,7 +9,7 @@
 clearvars;
 
 %Params
-subject_ID = 'M52'; %User enters subject name, or other string to use as filter for dirs to search
+subject_ID = 'M54'; %User enters subject name, or other string to use as filter for dirs to search
 segWidth = 40; %width of viewing box in pixels
 
 %Search for ROI directories

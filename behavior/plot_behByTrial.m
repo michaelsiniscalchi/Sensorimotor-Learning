@@ -1,5 +1,5 @@
 function fig = plot_behByTrial(trialData,trials,tlabel,time_range)
-%%% plot_session_beh_vert %
+%%% plot_behByTrial
 %PURPOSE:   Plot behavioral variables from auditory discrimination session by trial
 %AUTHORS:   MJ Siniscalchi & AC Kwan 190624
 %
@@ -37,8 +37,8 @@ function fig = plot_behByTrial(trialData,trials,tlabel,time_range)
                 
         %Plot tick marks for licks
         win = @(X) X(X>time_range(1) & X<time_range(2));
-        LL = win(trialData.leftlickTimes{j}); 
-        RL = win(trialData.rightlickTimes{j});
+        LL = win(trialData.lickTimesLeft{j}); 
+        RL = win(trialData.lickTimesRight{j});
         
         plot([LL; LL],j+[-0.5*ones(size(LL)); 0.5*ones(size(LL))],'r','LineWidth',0.5);
         plot([RL; RL],j+[-0.5*ones(size(RL)); 0.5*ones(size(RL))],'b','LineWidth',0.5);

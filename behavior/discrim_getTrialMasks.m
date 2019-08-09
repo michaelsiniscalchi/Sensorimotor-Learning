@@ -1,4 +1,4 @@
-function [ trials ] = discrim_getTrialMasks( trialData, presCodeSet )
+function [ trials ] = discrim_getTrialMasks( trialData )
 % % getTrialMasks %
 %PURPOSE:   Create data structure, 'trials', containing logical masks
 %           of size(nTrials,1) for task variables.
@@ -16,7 +16,7 @@ function [ trials ] = discrim_getTrialMasks( trialData, presCodeSet )
 %--------------------------------------------------------------------------
 
 %% GET CODES FROM PRESENTATION
-[STIM,RESP,OUTCOME,EVENT] = flex_getPresentationCodes(presCodeSet);
+[STIM,RESP,OUTCOME,EVENT] = flex_getPresentationCodes(1); %Only one codeset is used currently...
 
 %% GET MASKS FOR THOSE RESP/OUTCOME/RULE TYPES WITH CLEAR MAPPINGS
 taskVar = {'cue' 'response' 'outcome'};
@@ -27,12 +27,10 @@ for i = 1:numel(taskVar)
         case 'cue'
             codes.upsweep = [STIM.sound_UPSWEEP,...
                                 STIM.left_UPSWEEP,...
-                                STIM.right_UPSWEEP,...
-                                STIM.reversal_UPSWEEP];
+                                STIM.right_UPSWEEP];
             codes.downsweep = [STIM.sound_DNSWEEP,...
                                 STIM.left_DNSWEEP,...
-                                STIM.right_DNSWEEP,...
-                                STIM.reversal_DNSWEEP];
+                                STIM.right_DNSWEEP];
         case 'response'
             codes.left = [RESP.LEFT];
             codes.right = [RESP.RIGHT];

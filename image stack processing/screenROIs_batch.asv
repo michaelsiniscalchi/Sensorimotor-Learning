@@ -9,12 +9,13 @@
 clearvars;
 
 %Params
-data_dir = 'C:\Users\Michael\Documents\Data & Analysis\Rule Switching';
-subject_ID = {'M57','M58','M59','M60','M61'}; %User enters subject name, or other string to use as filter for dirs to search
+%subject_ID = 'M61'; %User enters subject name, or other string to use as filter for dirs to search
+subject_ID = {'M57','M58','M59','M60','M61'};
 segWidth = 40; %width of viewing box in pixels
 
 for j = 1:numel(subject_ID)
     %Search for ROI directories
+    data_dir = 'C:\Users\Michael\Documents\Data & Analysis\Rule Switching';
     temp = dir(fullfile(data_dir,['*' subject_ID{j} '*']));
     for i = 1:numel(temp)
         dirs.sessions{i,:} = fullfile(data_dir,temp(i).name);
@@ -114,5 +115,5 @@ for j = 1:numel(subject_ID)
         saveas(f,save_name,'tif')
         close(f);
     end
-    clearvars -except data_dir subject_ID segWidth j
+    clearvars -except data_dir subject_ID j
 end

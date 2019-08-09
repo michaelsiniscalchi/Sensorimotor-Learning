@@ -5,8 +5,8 @@ function ILIs = get_interLickIntervals(trialData)
 % load('C:\Users\Michael\Documents\Data & Analysis\Sensorimotor Learning - MFC Lesion\analysis\M62\M62_DISCRIM_1905211245.mat');
 
 %%
-lickTimes_L = trialData.leftlickTimes(:); %Column vectors
-lickTimes_R = trialData.rightlickTimes(:);
+lickTimes_L = trialData.lickTimesLeft(:); %Column vectors
+lickTimes_R = trialData.lickTimesRight(:);
 
 %Aggregate all licktimes from right and left ports
 lickTimes_all = cell(numel(lickTimes_L),1);

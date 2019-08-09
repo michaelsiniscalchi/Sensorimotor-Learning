@@ -78,7 +78,6 @@ for i = 1:numel(dir_list)
         S.(dir_list{i}).dprime(j) = stats.dprime;
     end
 end
-
 nSubjects = numel(fieldnames(S));
 
 for i = 1:nSubjects

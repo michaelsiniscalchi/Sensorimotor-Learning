@@ -16,7 +16,6 @@ clearvars;
 %% Set parameters for analysis
 
 % Calculate or re-calculate results
-% ***Change variables here to struct calculate, eg calculate.dFF for easier clearing of other variables between loops
 calculate.behavior             = false;
 calculate.dFF                  = false;
 calculate.cellF                = false; %First get cellf and neuropilf from ROIs, excluding overlapping regions and extremes of the FOV
@@ -27,9 +26,10 @@ calculate.mlr_nLicks           = false; %Include term for (nlicksright - nlicksl
 calculate.longitudinal_summary = false;
 
 % Plot results
-Plot.mlr_results = false;
-Plot.selectivity_results = true;
-Plot.longitudinal_summary = false;
+Plot.mlr_results            = false;
+Plot.selectivity_results    = true;
+Plot.single_units           = false;
+Plot.longitudinal_summary   = false;
 
 % File names for saved data
 mat_file.behavior       = 'beh.mat';
@@ -127,7 +127,7 @@ for i = 1:numel(expData)
         if calculate.cellF
             %Get cellular and neuropil fluorescence excluding overlapping regions and n-pixel frame
             [stack, cells] = get_sessionFluoData(roi_path);
-            [cells, masks] = calc_cellF(stack, cells, params.exclBorderWidth);
+            [cells, masks] = calc_cellF_batch(stack, cells, params.exclBorderWidth);
             save(dff_mat,'-STRUCT','cells'); %Save to dff.mat
             save(dff_mat,'masks','-append'); %Save to dff.mat
             clearvars stack;
@@ -199,10 +199,12 @@ for i = 1:numel(expData)
         %Load data into workspace
         load(mat_file.selectivity,'bootAvg','choiceSel','decodePerf');
         cellIdx = get_cellIndex(cells,params.cellIDs);
-                        
+         
+        if Plot.single_units
         %Save figure for each cell plotting all combinations of choice x outcome
-        %figs = plot_trialAvgDFF(cells,trials,trigTimes,bootAvg,params); %arg 'bootAvg' optional, but saves time if pre-calculated; else set to [].
-        %save_singleUnitPlots(figs,savefigpath); %save as FIG and PNG
+        figs = plot_trialAvgDFF(cells,trials,trigTimes,bootAvg,params); %arg 'bootAvg' optional, but saves time if pre-calculated; else set to [].
+        save_singleUnitPlots(figs,savefigpath); %save as FIG and PNG
+        end
                 
         % Plot selectivity index with CI for each cell {left_right_hit; left_right_error}
         figs = plot_selectivityIdx(cells, selectivity, params); 

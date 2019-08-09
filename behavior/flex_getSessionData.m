@@ -14,209 +14,133 @@ function [ sessionData, trialData ] = flex_getSessionData( logData )
 %   trialData:      Fields:
 %                   {startTimes, cueTimes, outcomeTimes, *cue, *response, *outcome}
 %               *cue, response, and outcome for each trial contains
-%               correspoinding eventCode from NBS Presentation
+%               corresponding event code from NBS Presentation
+%--------------------------------------------------------------------------
 
-%% What event codes were used?
+%% Extract data from 'logData'
 
-%COPY FROM LOGDATA
+% Get subject ID, date, and code values 
 sessionData.subject = upper(logData.subject);
 sessionData.dateTime = logData.dateTime;
+CODE = logData.values{4}; %logData.header = {'Subject' 'Trial' 'Event Type' 'Code' 'Time'}
 
-%SESSION DATA <<logData.header: 'Subject' 'Trial' 'Event Type' 'Code' 'Time'>>
-TYPE = logData.values{3}; %Intersectional approach necessary, because values 2,3 were reused;
-CODE = logData.values{4}; %change in future Presentation scripts: with unique codes, only CODE would be needed to parse the logfile...
+% Generate structure to reference event codes from NBS Presentation
+[ STIM, RESP, OUTCOME, EVENT ] = flex_getPresentationCodes(1);
+cueCodes = cell2mat(struct2cell(STIM)); %Numeric vector containing all stimulus-associated codes
+outcomeCodes = cell2mat(struct2cell(OUTCOME)); %outcome-associated codes
+respCodes = cell2mat(struct2cell(RESP));     %response-associated codes
 
-tempidx = (strcmp(TYPE,'Nothing') | strcmp(TYPE,'Sound')); %do not consider RESPONSE or MANUAL
-codeUsed = unique(CODE(tempidx));         %List the set of event codes found in this logfile
+% Truncate data to last completed trial
+lastTrialEnd = find(CODE==EVENT.ENDTRIAL,1,'last'); 
+CODE = CODE(1:lastTrialEnd); 
 
-% Get the event codes that are used in this log file, and then based on the set of codes used,
-% make an educated guess on the correct event code set
-% The reason for this section is that the set of event code (e.g. 6=reward;
-% 5=miss, etc) was overhauled completely in around August, 2017; so older
-% log files are stored based on one set of event codes, and newer log files
-% may be stored based on another set of event codes
-sessionData.presCodeSet = NaN;   %which is the event code set used?
-for l = 1:2                      %test 2 potential event code sets
-    [ STIM, RESP, OUTCOME, EVENT ] = flex_getPresentationCodes(l);
-    cueCodes = cell2mat(struct2cell(STIM)); %get expected list of stimulus-associated codes as vector
-    outcomeCodes = cell2mat(struct2cell(OUTCOME)); %get expected outcome-associated codes as vector
-    eventCodes = cell2mat(struct2cell(EVENT));     %get expected event-associated codes as vector
-    
-    if sum(ismember(codeUsed,[cueCodes; outcomeCodes; eventCodes])==0)==0     %are all the used code a subset of the expected codes?
-        sessionData.presCodeSet = l;
-    end
-end
-if isnan(sessionData.presCodeSet)     %did not recognize the event code set
-    disp('Codes that appeared in this log file:');
-    disp(codeUsed);
-    error('ERROR in flex_getSessionData: there are unrecognized event codes found in the log file.');
-else                    %otherwise, recognize the event code set and will use it!
-    [ STIM, RESP, OUTCOME, EVENT ] = flex_getPresentationCodes(sessionData.presCodeSet);
-    cueCodes = cell2mat(struct2cell(STIM)); %get expected list of stimulus-associated codes as vector
-    outcomeCodes = cell2mat(struct2cell(OUTCOME)); %get expected outcome-associated codes as vector
-end
+% Initialize data structure
+sessionData.nTrials = numel(CODE(ismember(CODE,outcomeCodes))); %Total number of trials
+trialData = initTrialData(sessionData.nTrials);
 
-% We will only consider trials that are complete. If the behavior was
-% aborted in the middle of the very last trial, we will not consider those
-% few orphan events
-lastTrialEnd=find(strcmp(TYPE,'Nothing') & CODE==EVENT.ENDEXPT,1,'last'); %get rid of CODE beyond the last completed trial
-TYPE = TYPE(1:lastTrialEnd);
-CODE = CODE(1:lastTrialEnd);
+%% Cues & Outcomes: record numeric vector of event codes
+trialData.cue = CODE(ismember(CODE,cueCodes)); %Cue codes 
+trialData.outcome =  CODE(ismember(CODE,outcomeCodes)); %Outcome codes
 
-%% Set up the time axis, and identify lick times
-time_0 = logData.values{5}(find(CODE==EVENT.STARTEXPT,1,'first'));
-if isempty(time_0)
-    disp('ERROR in flex_getSessionData: there are no StartExpt event codes found in the log file.');
-    disp('   check the expParam.presCodeSet used for flex_getPresentationCodes');
-else
-    time = logData.values{5} - time_0;   %time starts at first instance of startExpt
-end
+%% Calculate absolute event times
+
+% Define time line
+time_0 = logData.values{5}(find(CODE==EVENT.STARTTRIAL,1,'first'));
+time = logData.values{5} - time_0;   %time starts at first instance of startExpt
 time = double(time)/10000;         %time as double in seconds
-sessionData.timeLastEvent = time(end);   %time of the last event logged
-sessionData.lickTimes{1} = time(strcmp(TYPE,'Response') & CODE==RESP.LEFT);    %left licktimes
-sessionData.lickTimes{2} = time(strcmp(TYPE,'Response') & CODE==RESP.RIGHT);   %right licktimes
 
-%% What are the events and when did they occur?
-trialData.startTimes = time(strcmp(TYPE,'Nothing') & CODE==EVENT.STARTEXPT);
+% For trialData: absolute timing of events that define trial structure
+trialData.startTimes = time(CODE==EVENT.STARTTRIAL);
+trialData.cueTimes = time(ismember(CODE,cueCodes));
+trialData.outcomeTimes = time(ismember(CODE,outcomeCodes));
 
-trialData.cue = CODE(strcmp(TYPE,'Sound') & ismember(CODE,cueCodes));
-trialData.cueTimes = time(strcmp(TYPE,'Sound') & ismember(CODE,cueCodes));
+% For sessionData: store timing of all licks in session
+sessionData.lickTimes{1} = time(CODE==RESP.LEFT);    %Left lick times
+sessionData.lickTimes{2} = time(CODE==RESP.RIGHT);   %Right lick times
+sessionData.timeLastEvent = [num2str(time(end)/60,5) ' min'];   %Time of the last event logged
 
-trialData.outcome =  CODE((strcmp(TYPE,'Nothing') | strcmp(TYPE,'Sound')) & ismember(CODE,outcomeCodes));
-trialData.outcomeTimes = time((strcmp(TYPE,'Nothing') | strcmp(TYPE,'Sound')) & ismember(CODE,outcomeCodes));
+%% Timing and direction of each response
 
-%% Check consistency of the extracted trials and trial times
-
-% Each cue presented should be associated with a startExpt marker (time
-% when a new .tiff imaging file is triggered)
-if numel(trialData.startTimes) ~= numel(trialData.cueTimes)
-    %Presentation sometimes seem to skip a few of the startExpt events?!
-    disp('WARNING in flex_getSessionData: missing StartExpt events');
-    disp('   so will estimate startExpt times = (cue times - 1)');
-    
-    startexpDur = [];
-    for j = 1:numel(trialData.startTimes)
-        temp = abs(trialData.cueTimes - trialData.startTimes(j));  %time of cues relative to a specific startExpt time
-        temp = temp(temp>0);      %cue should follow startExpt
-        startexpDur(j) = min(temp);   %identify the cue that is closest to startExpt
-    end
-    %use mode to identify the most frequency value of startexpDur
-    %expect that to be the supposed duration of the startExpt event; this
-    %trick works as long as most of the time startExpt event was present,
-    %and we are only missing some events
-    trialData.startTimes = trialData.cueTimes - mode(startexpDur);
-end
-
-% Each cue presented should be associated with a certain outcome
-if numel(trialData.cueTimes) > numel(trialData.outcomeTimes)
-    %In early 2014, miss events do not have event codes
-    disp('WARNING in flex_getSessionData: some events missing outcomes');
-    disp('   assuming Miss trials were not assigned');
-    
-    %for each cue, there should be an outcome within 2 sec, otherwise we
-    %will categorize that as a miss
-    temp_outcomeTimes=[]; temp_outcome=[];
-    for j=1:numel(trialData.cueTimes)
-        
-        difftime = trialData.outcomeTimes - trialData.cueTimes(j);
-        idx = (difftime > 0) & (difftime < 2);
-        if sum(idx) == 1     %if such outcome time exist
-            temp_outcomeTimes(j,1) = trialData.outcomeTimes(idx);
-            temp_outcome(j,1) = trialData.outcome(idx);
-        elseif sum(idx) == 0     %if no outcome, then it is a miss trial
-            temp_outcomeTimes(j,1) = trialData.cueTimes(j) + 2;
-            temp_outcome(j,1) = OUTCOME.MISS;
-        else
-            disp('Error when trying to fix cueTimes > outcomeTimes');
-        end
-    end
-    trialData.outcomeTimes = temp_outcomeTimes;
-    trialData.outcome = uint32(temp_outcome);
-end
-
-% Each trial must have one and only one outcome
-sessionData.nTrials = numel(trialData.outcomeTimes);
-
-%% Timing and type of response
-respIdx = find(strcmp(TYPE,'Response'));
-respTimes = time(respIdx);
-
+% Infer grace period duration
 if nanmin(trialData.outcomeTimes - trialData.cueTimes) >= 0.4
-    %if all outcomes occur much later than the cue presentation time, it is
-    %likely that we set a grace period (to ignore early, impulsive licks)
-    sessionData.gracePeriodDur = 0.5;  %grace period of 0.5 s was employed for many early studies, especially when animals start to learn, in the lab
+    sessionData.gracePeriodDur = 0.5;  %grace period of 0.5 s was employed for many early studies in the lab
 else
     sessionData.gracePeriodDur = 0;    %no grace period
 end
 
-trialData.reaction = NaN(sessionData.nTrials,1);             %direction of the first lick after cue
-trialData.reactionTimes = NaN(sessionData.nTrials,1);          %time of the first lick after cue (only for trial without pre-cue licks)
-
-trialData.response = zeros(sessionData.nTrials,1,'uint32');  %direction of the first lick during response period
-trialData.responseTimes = NaN(sessionData.nTrials,1);          %time of the first lick during response period
-
-trialData.preCueLickRate = NaN(sessionData.nTrials,1);
-
-idx = find(trialData.outcome~=OUTCOME.MISS); %Idx all non-miss trials
+% Extract response data from all relevant trials
+idx = find(trialData.outcome~=OUTCOME.MISS); %Trial idx: all non-miss trials
+respIdx = find(ismember(CODE,respCodes)); %Event idx: all lick responses
+respTimes = time(respIdx); %Absolute timing of each response
 for i = 1:numel(idx)
-    %Reaction time
-    temp = find(respTimes>=trialData.cueTimes(idx(i)),1,'first');
-    trialData.reaction(idx(i)) = CODE(respIdx(temp));
-    % if there is no lick for 0.5 s before cue onset (i.e., mouse not licking prior to cue)
-    if sum((respTimes-respTimes(temp))>-0.5 & (respTimes-respTimes(temp))<0)
-        trialData.reactionTimes(idx(i)) = respTimes(temp)-trialData.cueTimes(idx(i));   %relative to cue time
-    end
-    
-    %Time of the lick that counts as animal's choice (recall there is a 0.5 sec grace period)
-    temp = find(respTimes>=(trialData.cueTimes(idx(i))+sessionData.gracePeriodDur),1,'first'); %first lick within response window
-    trialData.response(idx(i)) = CODE(respIdx(temp));
-    trialData.responseTimes(idx(i)) = respTimes(temp);   %in absolute terms
-    
-    %Pre-cue lick rate (with 1 s before cue), for trial where there was an
-    %animal response (otherwise unfair because animals could be disengaged
-    %from task, no pre-cue licking but no responses either)
-    temp = find(respTimes>(trialData.cueTimes(idx(i))-1) & respTimes<=(trialData.cueTimes(idx(i))));
-    trialData.preCueLickRate(idx(i)) = numel(temp);      %number of licks in the pre-cue window
-    
+    %Timing of the lick recorded as animal's choice (eg following 0.5 sec grace period)
+    firstLick = find(respTimes>=(trialData.cueTimes(idx(i))+sessionData.gracePeriodDur),1,'first'); %First lick within response window
+    trialData.response(idx(i)) = CODE(respIdx(firstLick));
+    trialData.responseTimes(idx(i)) = respTimes(firstLick);   %In absolute time (only ~1ms different from outcomeTimes) 
 end
 
-% Lick times associated with each trial
-for i = 1:sessionData.nTrials
-    %Times of all licks from prior trial's cue to next trial's cue
-    if i>1
-        time1 = trialData.cueTimes(i-1);
+%% Lick times, lick counts, and reaction times from all trials
+
+% Find event times across multiple trials relative to cue onset 
+getRelTimes = @(trial_index,t,abs_times)... 
+    abs_times(abs_times>t(1) & abs_times<=t(2)) - trialData.cueTimes(trial_index);
+
+for i = 1:sessionData.nTrials 
+
+    %Extract reaction times: first response following cue
+    firstLick = find(respTimes>=trialData.cueTimes(i),1,'first');
+    if ~isempty(firstLick) %If at least one reactive lick recorded
+        relTimes = respTimes-respTimes(firstLick); %Time relative to first lick
+        if ~any(relTimes > -0.5 & relTimes < 0) %Exclude "reactions" that are part of a pre-existing lick-bout
+            trialData.reaction(i) = CODE(respIdx(firstLick));
+            trialData.reactionTimes(i) = respTimes(firstLick)-trialData.cueTimes(i);   %Timing relative to cue
+        end
+    end
+
+    % Lick times relative to each cue onset
+    if i==1
+        t = [0,trialData.cueTimes(i+1)];
+    elseif i==sessionData.nTrials
+        t = [trialData.cueTimes(i-1),time(end)];
     else
-        time1 = 0;
+        t = [trialData.cueTimes(i-1),trialData.cueTimes(i+1)];
     end
+    trialData.lickTimesLeft{i}  = getRelTimes(i,t,sessionData.lickTimes{1})'; %Lick times relative to cue
+    trialData.lickTimesRight{i} = getRelTimes(i,t,sessionData.lickTimes{2})';
     
-    if i<sessionData.nTrials
-        time2 = trialData.cueTimes(i+1);
-    else
-        time2 = time(end);
-    end
+    %Lick counts prior to cue and reward
+    t = [trialData.cueTimes(i)-0.5, trialData.cueTimes(i)]; %Between -0.5 and cue onset
+    trialData.nLicksPreCue(i) = numel(getRelTimes(i,t,respTimes)); %Lick count within pre-cue window
     
-    temp = sessionData.lickTimes{1}; %Left licks
-    temp = temp(temp>time1 & temp<=time2); %Capture only licks between prior cue and next cue
-    trialData.leftlickTimes{i} = temp'-trialData.cueTimes(i); %Lick times relative to cue
+    t = [trialData.cueTimes(i), trialData.cueTimes(i)+sessionData.gracePeriodDur];
+    trialData.nLicksPreRew(i) = numel(getRelTimes(i,t,respTimes)); %Lick count between cue onset and response window      
     
-    temp = sessionData.lickTimes{2}; %Right licks
-    temp = temp(temp>time1 & temp<=time2); 
-    trialData.rightlickTimes{i}=temp'-trialData.cueTimes(i); 
+    %Lick counts following cue
+    win = 5; %Within 5 s of cue onset
+    LT = {trialData.lickTimesLeft{i}, trialData.lickTimesRight{i}};
+    trialData.nLicksLeft(i) = sum(LT{1}>0 & LT{1}<=win); %Record licks within time range
+    trialData.nLicksRight(i) = sum(LT{2}>0 & LT{2}<=win);
+    
 end
 
-% What are the number of licks associated with each response? 
-% (within 5 s of cue, avoid counting pre-cue anticipatory licks)
-for i = 1:sessionData.nTrials
-    %Times of all licks within 5 s of cue
-    time1 = trialData.cueTimes(i);
-    time2 = trialData.cueTimes(i) + 5;
-    
-    temp = sessionData.lickTimes{1};
-    trialData.numLeftLick(i,1) = sum(temp>time1 & temp<=time2); %save only those licks within range
+%% Internal functions
+function trialData = initTrialData( nTrials )
+trialData.cue = zeros(nTrials,1,'uint8');           %Cue code from NBS Presentation logfile
+trialData.reaction = zeros(nTrials,1,'uint8');      %Direction of first lick following cue
+trialData.response = zeros(nTrials,1,'uint8');      %Direction of first lick during response period 
+trialData.outcome =  zeros(nTrials,1,'uint8');      %Outcome code from NBS Presentation logfile
 
-    temp = sessionData.lickTimes{2};
-    trialData.numRightLick(i,1) = sum(temp>time1 & temp<=time2); %save only those licks within range
-end
+trialData.startTimes = NaN(nTrials,1);
+trialData.cueTimes = NaN(nTrials,1);
+trialData.reactionTimes = NaN(nTrials,1);           %Time of the first lick following cue 
+trialData.responseTimes = NaN(nTrials,1);           %Time of first lick during response period
+trialData.outcomeTimes = NaN(nTrials,1);
 
-end
+trialData.nLicksPreCue = zeros(nTrials,1,'uint8');  %Lick rate during the 500ms pre-cue
+trialData.nLicksPreRew = zeros(nTrials,1,'uint8');  %Lick rate during the 500ms grace period, if present
+trialData.nLicksLeft = zeros(nTrials,1,'uint8');    %Lick counts for the 5 s following cue onset 
+trialData.nLicksRight = zeros(nTrials,1,'uint8');
+
+trialData.lickTimesLeft = cell(nTrials,1);          %Lick times for each lick direction
+trialData.lickTimesRight = cell(nTrials,1);
 
