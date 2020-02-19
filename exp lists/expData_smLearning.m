@@ -39,6 +39,9 @@ expData(i).sub_dir = '180524 M52 Discrim90';
 expData(i).logfile = 'M52_DISCRIM_1805241249.log';
 expData(i).criterion = 85; %Zero indicates the <55% session.
 expData(i).npCorrFactor = 0.5;
+
+
+
 i=i+1;
 expData(i).sub_dir = '180422 M54 Discrim'; 
 expData(i).logfile = 'M54_DISCRIM_1804221252.log';
@@ -65,22 +68,22 @@ expData(i).logfile = 'M54_DISCRIM_1805051654.log';
 expData(i).criterion = 85;
 expData(i).npCorrFactor = 0.5;
 i=i+1;
-expData(i).sub_dir = '180427 M54 Discrim60';
+expData(i).sub_dir = '180427 M54 Discrim60'; %Not used currently for performance threshold-crossing based analyses
 expData(i).logfile = 'M54_DISCRIM_1804271304.log';
 expData(i).criterion = NaN;
 expData(i).npCorrFactor = 0.5;
 i=i+1;
-expData(i).sub_dir = '180515 M54 Discrim90';
+expData(i).sub_dir = '180515 M54 Discrim90'; %Not used currently for performance threshold-crossing based analyses
 expData(i).logfile = 'M54_DISCRIM_1805151318.log';
 expData(i).criterion = NaN;
 expData(i).npCorrFactor = 0.5;
 
 %---For Code Development---------------------------------------------------
-i=i+1;
-expData(i).sub_dir = '180425 M54 Discrim50 devSet'; 
-expData(i).logfile = 'M54_DISCRIM_1804251531.log';
-expData(i).criterion = 55;
-expData(i).npCorrFactor = 0.5;
+% i=i+1;
+% expData(i).sub_dir = '180425 M54 Discrim50 devSet'; 
+% expData(i).logfile = 'M54_DISCRIM_1804251531.log';
+% expData(i).criterion = 55;
+% expData(i).npCorrFactor = 0.5;
 
 % i=i+1;
 % expData(i).sub_dir = '180530 M54 Discrim90';

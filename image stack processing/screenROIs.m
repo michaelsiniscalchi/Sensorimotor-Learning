@@ -8,12 +8,14 @@
 
 clearvars;
 
-%Params
-subject_ID = 'M54'; %User enters subject name, or other string to use as filter for dirs to search
+%% User Must Set Params
+subject_ID = 'M53'; %User enters subject name, or other string to use as filter for dirs to search
+data_dir = 'J:\Data & Analysis\Sensorimotor Learning\data';
 segWidth = 40; %width of viewing box in pixels
 
-%Search for ROI directories
-data_dir = 'C:\Users\Michael\Documents\Data & Analysis\Sensorimotor Learning\data';
+%% Locate ROI data and Time-Projections from all Sessions from Specified Subject
+
+% Search for ROI directories
 temp = dir(fullfile(data_dir,['*' subject_ID '*']));
 for i = 1:numel(temp)
     dirs.sessions{i} = fullfile(data_dir,temp(i).name);

@@ -207,7 +207,7 @@ for i = 1:numel(expData)
         end
                 
         % Plot selectivity index with CI for each cell {left_right_hit; left_right_error}
-        figs = plot_selectivityIdx(cells, selectivity, params); 
+        %figs = plot_selectivityIdx(cells, selectivity, params); 
         %***TROUBLESHOOT
         %-Is idx calculated correctly?
         %-Could be result of LOOCV procedure?? Also some decoding accuracy ~0... should not be possible

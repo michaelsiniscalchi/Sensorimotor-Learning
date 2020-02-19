@@ -1,8 +1,9 @@
 function [ STIM, RESP, OUTCOME, EVENT ] = flex_getPresentationCodes(presCodeSet)
-% % flex_getPresentationCodes %
+%%% getPresentationCodes()
 %
 %PURPOSE: To read and parse Presentation logfile for further analysis.
-%AUTHORS: MJ Siniscalchi & AC Kwan, 161209. Modified by MJS 190703.
+%AUTHORS: MJ Siniscalchi & AC Kwan, 161209. 
+%           -Edited 190703mjs
 %
 %OUTPUT VARIABLES
 %   presCodeSet:    Allow flexibility for different sets of event codes (use 1)

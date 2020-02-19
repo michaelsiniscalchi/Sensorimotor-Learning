@@ -39,7 +39,7 @@ elseif isstruct(stack) %Data in multiple MAT files
     nStacks = numel(stack.path);
     nFrames = stack.info.nFrames;
 else
-    error('Argument 1 should be a 3D double array or a cell array of strings.');
+    error('Argument 1 should be a 3D double array or struct.');
 end
 
 %Convert from cell arrays to 3d matrices
@@ -91,7 +91,7 @@ for i = 1:nStacks
             neuropilf{k}(idx(j)) = mean(img(npMask{k})); %same for neuropil mask
         end
     end
-    disp(['Frame ' num2str(idx(end)) '\' num2str(sum(nFrames))]);
+    disp(['Frame ' num2str(idx(end)) '/' num2str(sum(nFrames))]);
     clearvars S
 end
 
