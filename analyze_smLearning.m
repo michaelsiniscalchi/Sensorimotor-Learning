@@ -1,29 +1,25 @@
 %---------------------------------------------------------------------------------------------------
-% analyze_RuleSwitchingSession
+% analyze_smLearning
 %
-% PURPOSE: To analyze individual sessions from a two-choice auditory rule switching task.
+% PURPOSE: To analyze 
 %
-% AUTHOR: MJ Siniscalchi, 190701
+% AUTHOR: MJ Siniscalchi, 200219
 %
 % NOTES:    
 %           * If neuropil (background) masks are not generated after cell selection in cellROI.m,
 %               use the script get_neuropilMasks_script to generate them post-hoc 
 %               (much faster than doing it through the GUI...).
 %
-% TODO:
-%       -Complete the experiment table: include #cells, #trials, #blocks
-%       -Include number of excluded cells in summary_stats: for each cell type, {total, %total, %bySession}
-%
 %---------------------------------------------------------------------------------------------------
 
 clearvars;
 
 % Set MATLAB path and get experiment-specific parameters
-[dirs, expData] = expData_RuleSwitching(pathlist_RuleSwitching);
-% [dirs, expData] = expData_RuleSwitching_DEVO(pathlist_RuleSwitching); %For processing/troubleshooting subsets
+[dirs, expData] = expData_smLearning(pathlist_smLearning);
+% [dirs, expData] = expData_smLearning_DEVO(pathlist_smLearning); %For processing/troubleshooting subsets
 
 % Set parameters for analysis
-[calculate, summarize, figures, mat_file, params] = params_RuleSwitching(dirs,expData);
+[calculate, summarize, figures, mat_file, params] = params_smLearning(dirs,expData);
 expData = get_imgPaths(dirs, expData, calculate, figures); %Append additional paths for imaging data if required by 'calculate'
 
 % Generate directory structure
@@ -48,12 +44,8 @@ if calculate.behavior
         logData = parseLogfile(fullfile(dirs.data,expData(i).sub_dir),expData(i).logfile);
         % Get stimulus, response, and outcome data from each trial
         [sessionData, trialData] = getSessionData(logData);
-        % Get data from each rule block
-        blocks = getBlockData(sessionData, trialData ); %***DOES NOT NEED VAR SESSIONDATA...MODIFY
         % Generate logical masks for specific trial types
         trials = getTrialMasks(sessionData, trialData, blocks);
-        % Get performance data for each rule block (hitrate, persev error rate, etc.)
-        blocks = getPerfData(trialData, trials, blocks);
         %Save processed data
         create_dirs(fileparts(mat_file.behavior(i))); %Create save directory
         save(mat_file.behavior(i),'logData','sessionData','trialData','trials','blocks');
