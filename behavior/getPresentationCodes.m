@@ -15,9 +15,9 @@ function [ STIM, RESP, OUTCOME, EVENT ] = getPresentationCodes(presCodeSet)
 %   EVENT:    fields containing other event-related eventCode defined in Presentation
 
 if presCodeSet == 1
-    STIM.sound_UPSWEEP=21;   %Rule/Sound cue combo: Sound/Upsweep
-    STIM.sound_DNSWEEP=22;
-    STIM.left_UPSWEEP=23;    %Rule/Sound cue combo: Action-Left/UpSweep
+    STIM.sound_UPSWEEP=21;  %Sound Rule/Upsweep...OR Simple Discrimination Task: upsweep
+    STIM.sound_DNSWEEP=22;  %Sound Rule/Downsweep...OR Simple Discrimination Task: downsweep
+    STIM.left_UPSWEEP=23;   %Rule/Sound cue combo: Action-Left/UpSweep
     STIM.left_DNSWEEP=24;
     STIM.right_UPSWEEP=25;  %Rule/Sound cue combo: Action-Right/UpSweep
     STIM.right_DNSWEEP=26;
@@ -31,9 +31,9 @@ if presCodeSet == 1
     OUTCOME.MISS=8;         %aka Pause event in Presentation
     
     EVENT.STARTTRIAL = 4;
-    EVENT.ENDTRIAL = 9;      %inter-trial period
+    EVENT.ENDTRIAL = 9;      %Begins inter-trial period
     
 else
-    disp('Warning: Code set is invalid for flex_getPresentationCodes');
+    error('Code set is invalid...may need to write a new elseif block to identify codes from NBS Presentation');
 end
 

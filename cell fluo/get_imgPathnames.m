@@ -33,8 +33,8 @@ if ~isempty(flist) && numel(flist)>1 %***Temporarily keep " && numel(flist)>1" t
     for i=1:numel(flist)
         expData(idx).reg_path{i} = fullfile(reg_dir,flist(i).name);
     end
-else %If 'registered' dir is empty or absent 
-    expData(idx).reg_path = []; %Note: if data registered as one big tiff, split by trial, eg using 'extract_substacks.m' to conform with processing pipeline
+else %If 'registered' dir is empty, absent, or contains one giant TIFF 
+    expData(idx).reg_path = []; %Note: if data registered as one big tiff, split by trial, eg using 'extract_substacks_script.m' to conform with processing pipeline
 end
 
 %All Column vectors
