@@ -6,6 +6,8 @@
 % AUTHOR: MJ Siniscalchi, 200219
 %
 % NOTES:
+%           *** Scripts for pre-processing movement corrected imaging data ***
+%               can be found in: ...\Sensorimotor-Learning\image stack processing
 %           * In cases where the whole session is stored in one giant TIFF:
 %               -Prior to running 'analyze_smLearning.m', use the script: 'extract_substacks_script.m'
 %                   to generate MAT files containing imaging data for each trial. 
@@ -143,14 +145,6 @@ if calculate.fluorescence
             save(mat_file.results(i),'decode','-append');
         end
         
-        % Rule transition analysis     
-        if calculate.transitions
-            %Calculate trial-by-trial similarity to activity assoc. w. prior and current rule
-            S = load(mat_file.results(i),'decode'); 
-            img_beh = load(mat_file.img_beh(i),'trialDFF','trials','blocks','cellID','sessionID');
-            transitions = calc_transitionResults(img_beh,S.decode,params.transitions);
-            save(mat_file.results(i),'transitions','-append');
-        end
         %clearvars stackInfo trialData trials blocks roi_path cellF_mat dff_mat
     end
     close(f);

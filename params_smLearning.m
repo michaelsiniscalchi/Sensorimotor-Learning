@@ -19,9 +19,9 @@ end
 %% SUMMARIZE RESULTS
 summarize.behavior              = false;
 summarize.imaging               = false; 
-summarize.selectivity           = true;
+summarize.selectivity           = false;
 
-summarize.stats                     = true; %Descriptive stats; needed for all summary plots
+summarize.stats                     = false; %Descriptive stats; needed for all summary plots
 summarize.table_experiments         = false;
 summarize.table_descriptive_stats   = false;
 summarize.table_comparative_stats   = false;
