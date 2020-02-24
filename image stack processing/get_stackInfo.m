@@ -2,6 +2,10 @@ function stackInfo = get_stackInfo(raw_path)
 
 disp('Fetching stackInfo: metadata from image files...');
 
+%Disable warning
+% warning('off','imageio:tiffmexutils:libtiffWarning'); %Warning: TIFF library warning - 'TIFFFetchNormalTag:  ASCII value for tag "ImageDescription" does not end in null byte.' 
+warning('off');
+
 %Header info from scim_openTif()
 header = scim_openTif(raw_path{1});
 stackInfo.imageWidth    = header.acq.pixelsPerLine;
@@ -10,9 +14,6 @@ stackInfo.frameRate     = header.acq.frameRate;
 stackInfo.zoomFactor    = header.acq.zoomFactor;
 stackInfo.nChans        = header.acq.numberOfChannelsSave;
 
-%Disable warning
-% warning('off','imageio:tiffmexutils:libtiffWarning'); %Warning: TIFF library warning - 'TIFFFetchNormalTag:  ASCII value for tag "ImageDescription" does not end in null byte.' 
-warning('off');
 for i = 1:numel(raw_path)
     
     %Waitbar

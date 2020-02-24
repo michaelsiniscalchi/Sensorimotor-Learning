@@ -16,6 +16,15 @@ clearvars;
 [calculate, summarize, figures, mat_file, params] = params_smLearning(dirs,expData);
 expData = get_imgPaths(dirs, expData, calculate, figures); %Append additional paths for imaging data if required by 'calculate'
 
+
+%% Get image header information generated during acquisition
+if calculate.stack_info     %Get header info and tag struct from original TIFs
+    for i = 1:numel(expData)
+        stackInfo = get_stackInfo(expData(i).raw_path); %Generated during mvt correction or post-hoc with the script 'get_stackInfo.m'
+        save(mat_file.stack_info(i),'-STRUCT','stackInfo'); %Save stack info from ScanImage
+    end
+end
+
 %% Extract all pixel intensity data from TIFFs
 
 for i=1:numel(expData)
@@ -29,14 +38,13 @@ for i=1:numel(expData)
         %Create directory for registered matfiles
         create_dirs(mat_dir);
         
-        % Get image header information generated during acquisition
-        if exist(mat_file.stack_info(i),'file')
-            load(fullfile(dirs.data,expData(i).sub_dir,'stack_info'),...
-                'nFrames','rawFileName','trigTime','trigDelay');
+        %Load imaging info files
+        if exists(mat_file.stack_info(i),'file);
+        stackInfo = get_stackInfo(expData(i).raw_path); %Generated during mvt correction or post-hoc with the script 'get_stackInfo.m'
+        save(mat_file.stack_info(i),'-STRUCT','stackInfo'); %Save stack info from ScanImage
         else
-            stackInfo = get_stackInfo(expData(i).raw_path); %Generated during mvt correction or post-hoc with the script 'get_stackInfo.m'
-            save(mat_file.stack_info(i),'-STRUCT','stackInfo'); %Save stack info from ScanImage
-        end
+        load(fullfile(dirs.data,expData(i).sub_dir,'stack_info'),...
+            'nFrames','rawFileName','trigTime','trigDelay');
         
         if numel(regFile)==1 %Convert data stored in one large registered TIF
             
