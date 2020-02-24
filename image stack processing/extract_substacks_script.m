@@ -63,5 +63,3 @@ for i=1:numel(expData)
     end
     clearvars -except i data_dir dirs expData
 end
-
-toc

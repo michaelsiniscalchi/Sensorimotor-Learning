@@ -1,4 +1,4 @@
-function [ dirs, expData ] = expData_RuleSwitching_DEVO(data_dir)
+function [ dirs, expData ] = expData_smLearning(data_dir)
 
 %PURPOSE: Create data structure for imaging tiff files and behavioral log files
 %AUTHORS: AC Kwan, 170519.
@@ -11,11 +11,12 @@ function [ dirs, expData ] = expData_RuleSwitching_DEVO(data_dir)
 %   expData:     Info regarding each experiment
 
 dirs.data = fullfile(data_dir,'Data');
+dirs.notebook = fullfile(data_dir,'Notebook'); 
 dirs.results = fullfile(data_dir,'Results');
 dirs.summary = fullfile(data_dir,'Summary');
 dirs.figures = fullfile(data_dir,'Figures');
 
-%% 
+%% FIXED PARAMETERS FOR EACH SESSION
 
 i=1;
 expData(i).sub_dir = '180425 M54 Discrim50_DEVO'; 

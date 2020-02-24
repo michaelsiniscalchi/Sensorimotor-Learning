@@ -32,7 +32,7 @@ create_dirs(dirs.results,dirs.summary,dirs.figures);
 
 % Tabulate experimental data for easy reference
 expTable = table((1:numel(expData))',{expData.sub_dir}',{expData.criterion}',... %***FUTURE: function expTable = tabulate_expData(expTable,dirs,expData,'') and record more info
-    'VariableNames',{'Index','Experiment_ID','Criterion %'});
+    'VariableNames',{'Index','Experiment_ID','Criterion'});
 
 % Begin logging processes
 diary(fullfile(dirs.results,['procLog' datestr(datetime,'yymmdd')])); 
@@ -149,13 +149,11 @@ if calculate.fluorescence
     end
     close(f);
     disp(['Total time needed for cellular fluorescence analyses: ' num2str(toc) 'sec.']); 
-%05 hrs for cellF
-%29 hrs for dF/F for all sessions
-%18 hrs for ROC analysis
 
 end
 
-%% SUMMARY
+%% SUMMARY 
+% NOTE: To be used as a template for summaries (WILL NOT WORK WITH Sensorimotor Learning Datasets as of 200224)
 
 %***FUTURE: Save reference table
 
@@ -189,15 +187,6 @@ if summarize.selectivity
     end
     selectivity.t = S.decode.t; %Copy time vector from 'decode'
     save(mat_file.summary.selectivity,'-struct','selectivity');
-end
-
-% Transition analysis
-if summarize.transitions
-    fieldNames = {'sessionID','cellType','cellID','type','similarity','aggregate',...
-        'behChangePt1','behChangePt2','nTrials','params'};
-    T = initSummaryStruct(mat_file.results,'transitions',fieldNames,expData); % S = initSummaryStruct( matFile, resultName, fieldNames, expData );
-    transitions = summary_transitions(T);
-    save(mat_file.summary.transitions,'-struct','transitions');
 end
 
 % Summary Statistics and Results Table

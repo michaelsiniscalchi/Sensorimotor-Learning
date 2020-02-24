@@ -18,7 +18,13 @@ dirs.figures = fullfile(data_dir,'Figures');
 
 %% FIXED PARAMETERS FOR EACH SESSION
 i=1;
-expData(i).sub_dir = '170928 M47 RuleSwitching'; 
-expData(i).logfile = 'M47_RULESWITCHING_1709281709.log';
-expData(i).cellType = 'SST'; %Cell-type label 
+expData(i).sub_dir = '180419 M52 Discrim50'; 
+expData(i).logfile = 'M52_DISCRIM_1804191507.log';
+expData(i).criterion = 55;
 expData(i).npCorrFactor = 0.5;
+
+% i=i+1;
+% expData(i).sub_dir = '180425 M54 Discrim50_DEVO'; 
+% expData(i).logfile = 'M54_DISCRIM_1804251531.log';
+% expData(i).criterion = 55;
+% expData(i).npCorrFactor = 0.5;

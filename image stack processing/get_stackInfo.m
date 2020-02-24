@@ -10,6 +10,9 @@ stackInfo.frameRate     = header.acq.frameRate;
 stackInfo.zoomFactor    = header.acq.zoomFactor;
 stackInfo.nChans        = header.acq.numberOfChannelsSave;
 
+%Disable warning
+% warning('off','imageio:tiffmexutils:libtiffWarning'); %Warning: TIFF library warning - 'TIFFFetchNormalTag:  ASCII value for tag "ImageDescription" does not end in null byte.' 
+warning('off');
 for i = 1:numel(raw_path)
     
     %Waitbar
@@ -41,4 +44,8 @@ for i = 1:numel(fields)
     stackInfo.(fields{i}) = stackInfo.(fields{i})(:);
 end
 
+%Re-enable warnings
+warning('on');
+
+%Close progress bar
 close(f);

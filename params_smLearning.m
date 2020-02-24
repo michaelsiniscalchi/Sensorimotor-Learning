@@ -1,13 +1,13 @@
 function [ calculate, summarize, figures, mat_file, params ] = params_smLearning(dirs,expData)
 
 %% CALCULATE OR RE-CALCULATE RESULTS
-calculate.behavior              = false;
-calculate.stack_info            = false;
-calculate.combined_data         = false;  %Combine relevant behavioral and imaging data in one MAT file ; truncate if necessary
+calculate.behavior              = true;
+calculate.stack_info            = true;
+calculate.combined_data         = true;  %Combine relevant behavioral and imaging data in one MAT file ; truncate if necessary
 calculate.cellF                 = true; %Extract cellf and neuropilf from ROIs, excluding overlapping regions and extremes of the FOV
-calculate.dFF                   = true; %Calculate dF/F, with optional neuropil subtraction
-calculate.align_signals         = true; %Interpolate dF/F and align to behavioral events
-calculate.trial_average_dFF     = true; %dF/F averaged over specified subsets of trials
+calculate.dFF                   = false; %Calculate dF/F, with optional neuropil subtraction
+calculate.align_signals         = false; %Interpolate dF/F and align to behavioral events
+calculate.trial_average_dFF     = false; %dF/F averaged over specified subsets of trials
 calculate.decode_single_units   = false;  %ROC/Selectivity for choice, outcome, etc.
 
 calculate.fluorescence = false;
